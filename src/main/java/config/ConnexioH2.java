@@ -1,6 +1,7 @@
 package config;
 
 import org.h2.jdbcx.JdbcDataSource;
+import org.h2.tools.Server;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,6 +38,11 @@ public class ConnexioH2 {
         }
 
         return ds.getConnection();
+    }
+
+    public static void servidorWeb() throws SQLException {
+        // Inicia el servidor web de H2(consola a http://localhost:8082)
+        Server webServer = Server.createWebServer("-webPort", "8082", "-tcpAllowOthers").start();
     }
 
 }
