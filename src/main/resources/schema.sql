@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS persona (
+   nif VARCHAR(9) PRIMARY KEY,
+   nom VARCHAR(255) NOT NULL,
+   edat INT
+);
