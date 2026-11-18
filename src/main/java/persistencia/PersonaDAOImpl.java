@@ -1,19 +1,19 @@
 package persistencia;
 
-import com.m486.config.ConnexioMysql;
-import com.m486.model.Persona;
-import com.m486.persistencia.PersonaException;
+import config.ConnexioH2;
+import model.Persona;
 
+import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PersonaDAOImpl implements PersonaDAO {
 
-    private ConnexioMysql conn;
+    private ConnexioH2 conn;
 
-    public PersonaDAOImpl(ConnexioMysql connMysql) {
-        this.conn = connMysql;
+    public PersonaDAOImpl(ConnexioH2 connH2) {
+        this.conn = connH2;
     }
 
     /**
@@ -32,7 +32,7 @@ public class PersonaDAOImpl implements PersonaDAO {
             ps.setInt(3, persona.getEdat());
 
             return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
+        } catch (SQLException | IOException e) {
             throw new PersonaException("Error afegint persona", e);
         }
 
@@ -48,7 +48,7 @@ public class PersonaDAOImpl implements PersonaDAO {
         Persona persona = null;
 
         try (Connection con = this.conn.getConnexio();
-        PreparedStatement ps = con.prepareStatement(query)) {
+             PreparedStatement ps = con.prepareStatement(query)) {
 
             ps.setString(1, nif);
             try (ResultSet rs = ps.executeQuery()) {
@@ -56,8 +56,8 @@ public class PersonaDAOImpl implements PersonaDAO {
                     persona = new Persona(rs.getString("NIF"), rs.getString("NOM"), rs.getInt("EDAT"));
                 }
             }
-        } catch (SQLException e) {
-            throw new PersonaException("No se a trobat la persona per NIF",e);
+        } catch (SQLException | IOException e) {
+            throw new PersonaException("No se a trobat la persona per NIF", e);
         }
         return persona;
     }
@@ -70,19 +70,18 @@ public class PersonaDAOImpl implements PersonaDAO {
         String query = "SELECT * FROM persona";
         List<Persona> persones = new ArrayList<>();
 
-        try(Connection con = this.conn.getConnexio();
-            Statement st = con.createStatement()) {
+        try (Connection con = this.conn.getConnexio();
+             Statement st = con.createStatement()) {
             ResultSet rs = st.executeQuery(query);
             while (rs.next()) {
-                persones.add(new Persona(rs.getString(1),rs.getString(2),rs.getInt(3)));
+                persones.add(new Persona(rs.getString(1), rs.getString(2), rs.getInt(3)));
             }
 
-        } catch (SQLException e) {
+        } catch (SQLException | IOException e) {
             throw new PersonaException("Error cercant persones", e);
         }
 
         return persones;
-
 
 
     }
@@ -96,11 +95,11 @@ public class PersonaDAOImpl implements PersonaDAO {
         String query = "DELETE FROM persona WHERE NIF = ?";
 
         try (Connection con = this.conn.getConnexio();
-        PreparedStatement ps = con.prepareStatement(query)) {
+             PreparedStatement ps = con.prepareStatement(query)) {
             ps.setString(1, nif);
             return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            throw new PersonaException("Error eliminant la persona",e);
+        } catch (SQLException | IOException e) {
+            throw new PersonaException("Error eliminant la persona", e);
         }
     }
 
@@ -113,12 +112,12 @@ public class PersonaDAOImpl implements PersonaDAO {
         String query = "UPDATE persona SET NOM = ?, EDAT = ? WHERE NIF = ?";
 
         try (Connection con = this.conn.getConnexio();
-        PreparedStatement ps = con.prepareStatement(query)) {
+             PreparedStatement ps = con.prepareStatement(query)) {
             ps.setString(1, persona.getNombre());
             ps.setInt(2, persona.getEdat());
             ps.setString(3, persona.getNif());
             return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
+        } catch (SQLException | IOException e) {
             throw new PersonaException("Error actualitzant la persona", e);
         }
 
